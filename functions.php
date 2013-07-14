@@ -113,7 +113,12 @@ function portfolinator_extract_gallery($item, $m, $options, $is_first=false) {
 			$thumb_src = wp_get_attachment_image_src($image->ID, 'thumbnail');
 			$full_src = wp_get_attachment_image_src($image->ID, 'large');
 			$image_caption = portfolinator_get_image_caption($image);
-			$output = $output . sprintf('<a href="%s" title="%s" class="portfolio-item" rel="portfolio-%s"><img src="%s" alt="%s"></a>', $full_src[0], $image_caption, $item->ID, $thumb_src[0], $image_caption);
+            if (has_post_thumbnail($item->ID)) {
+                $thumb_img = get_the_post_thumbnail($item->ID);
+            } else {
+                $thumb_img = sprintf('<img src="%s" alt="%s">', $thumb_src[0], $image_caption);
+            }
+			$output = $output . sprintf('<a href="%s" title="%s" class="portfolio-item" rel="portfolio-%s">%s</a>', $full_src[0], get_the_title($item->ID), $item->ID, $thumb_img);
 		}
 
 		foreach($ids as $id) {
