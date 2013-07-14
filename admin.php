@@ -13,6 +13,7 @@ function portfolinator_admin_init() {
 	add_settings_field('portfolinator_html', __('Wrapper and Item HTML Tags'), 'portfolinator_html_field', 'portfolinator', 'portfolinator_html');
 	add_settings_field('portfolinator_wrap_class', __('Wrapper CSS Class'), 'portfolinator_wrap_class_field', 'portfolinator', 'portfolinator_html');
 	add_settings_field('portfolinator_item_class', __('Item CSS Class'), 'portfolinator_item_class_field', 'portfolinator', 'portfolinator_html');
+    add_settings_field('portfolinator_use_bundled_colorbox', __('Use bundled colorbox'), 'portfolinator_colorbox_field', 'portfolinator', 'portfolinator_html');
 }
 
 function portfolinator_admin_menu() {
@@ -63,6 +64,9 @@ function portfolinator_validator($input) {
 	} else {
 		add_settings_error('portfolinator_item_class', 'portfolinator_item_class_error', __('Select a valid CSS class for the item HTML element.'), 'error');
 	}
+
+    $use_bundled_colorbox = 
+    $options['use_bundled_colorbox'] = intval($input['use_bundled_colorbox']) ? 1 : 0;
 
 	return $options;
 }
@@ -131,6 +135,17 @@ function portfolinator_item_class_field() {
 	echo '<input type="text" name="portfolinator_options[item_class]" value="' . $item_class . '">';
 	echo '<p class="description">';
 	_e('CSS class for the item element.');
+	echo '</p>';
+}
+
+function portfolinator_colorbox_field() {
+	$options = portfolinator_options();
+	$colorbox = intval($options['use_bundled_colorbox']) ? 1 : 0;
+	echo '<label><input type="radio" id="portfolinator_bundled_colorbox" value="1" name="portfolinator_options[use_bundled_colorbox]"' . ($colorbox == 1 ? ' checked="checked"' : '').'> ' . __('Yes') . '</label>';
+	echo '&nbsp;&nbsp;';
+	echo '<label><input type="radio" id="portfolinator_no_bundled_colorbox" value="0" name="portfolinator_options[use_bundled_colorbox]"' . ($colorbox == 0 ? ' checked="checked"' : '').'> ' . __('No (theme must use colorbox)') . '</label>';
+	echo '<p class="description">';
+	_e('Choose whether or not to use the colorbox bundled with this project.');
 	echo '</p>';
 }
 

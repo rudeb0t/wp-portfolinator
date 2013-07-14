@@ -13,6 +13,8 @@ define('PORTFOLINATOR_HTML_DIV_DIV', 3);
 define('PORTFOLINATOR_WRAP_CLASS', 'portfolinator_wrap');
 define('PORTFOLINATOR_ITEM_CLASS', 'portfolinator_item');
 
+define('PORTFOLINATOR_USE_BUNDLED_COLORBOX', 1);
+
 function portfolinator_get_image_caption($image) {
 	if ($image->post_excerpt) {
 		return apply_filters('the_title', $image->post_excerpt);
@@ -35,14 +37,16 @@ function portfolinator_enqueue_scripts() {
 			'subpage' => intval($options['root_page'] == $post->post_parent)
 		);
 
-		wp_register_style('colorbox-css', PORTFOLINATOR_URL_BASE . 'colorbox/colorbox.css', false, false, false);
-		wp_register_style('portfolinator-css', add_query_arg($args, PORTFOLINATOR_URL_BASE . 'css/portfolinator.css.php'), array('colorbox-css'), false, false);
+        if ($options['use_bundled_colorbox']) {
+            wp_register_style('colorbox-css', PORTFOLINATOR_URL_BASE . 'colorbox/colorbox.css', false, false, false);
+            wp_register_style('portfolinator-css', add_query_arg($args, PORTFOLINATOR_URL_BASE . 'css/portfolinator.css.php'), array('colorbox-css'), false, false);
 
-		wp_register_script('colorbox-js', PORTFOLINATOR_URL_BASE . 'colorbox/jquery.colorbox-min.js', array('jquery'), false, true);
-		wp_register_script('portfolinator-js', add_query_arg($args, PORTFOLINATOR_URL_BASE . 'js/portfolinator.js.php'), array('colorbox-js'), false, true);
+            wp_register_script('colorbox-js', PORTFOLINATOR_URL_BASE . 'colorbox/jquery.colorbox-min.js', array('jquery'), false, true);
+            wp_register_script('portfolinator-js', add_query_arg($args, PORTFOLINATOR_URL_BASE . 'js/portfolinator.js.php'), array('colorbox-js'), false, true);
 
-		wp_enqueue_style('portfolinator-css');
-		wp_enqueue_script('portfolinator-js');
+            wp_enqueue_style('portfolinator-css');
+            wp_enqueue_script('portfolinator-js');
+        }
 	}
 }
 
@@ -53,7 +57,8 @@ function portfolinator_options($use_default=false) {
 		'items_per_page' => PORTFOLINATOR_ITEMS_PER_PAGE,
 		'html' => PORTFOLINATOR_HTML_UL_LI,
 		'wrap_class' => PORTFOLINATOR_WRAP_CLASS,
-		'item_class' => PORTFOLINATOR_ITEM_CLASS
+		'item_class' => PORTFOLINATOR_ITEM_CLASS,
+        'use_bundled_colorbox' => PORTFOLINATOR_USE_BUNDLED_COLORBOX
 	);
 	if ($use_default) {
 		return $default_options;
@@ -132,6 +137,7 @@ function portfolinator_the_content($content) {
 
 	if ($options['root_page'] == $post->ID) {
 		$html = portfolinator_html($options);
+        $paginator = '';
 		$current_page = get_query_var('paged');
 		if (!$current_page) {
 			$current_page = 1;
@@ -173,10 +179,12 @@ function portfolinator_the_content($content) {
 			}
 		}
 		$output = $output . $html['_wrap'] . $paginator;
-	}
-	if ($options['gallery_position'] == 'before') {
-		return $output . $content;
-	} else {
-		return $content . $output;
-	}
+        if ($options['gallery_position'] == 'before') {
+            return $output . $content;
+        } else {
+            return $content . $output;
+        }
+    } else {
+        return $content;
+    }
 }
