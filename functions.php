@@ -1,7 +1,4 @@
 <?php
-add_action('wp_enqueue_scripts', 'portfolinator_enqueue_scripts');
-add_filter('the_content', 'portfolinator_the_content');
-
 define('PORTFOLINATOR_URL_BASE', plugin_dir_url(__FILE__));
 
 define('PORTFOLINATOR_ITEMS_PER_PAGE', 12);
@@ -109,7 +106,7 @@ function portfolinator_extract_gallery($item, $m, $options, $is_first=false) {
 			$thumb_src = wp_get_attachment_image_src($image->ID, 'thumbnail');
 			$full_src = wp_get_attachment_image_src($image->ID, 'large');
 			$image_caption = portfolinator_get_image_caption($image);
-			$output = $output . sprintf('<a href="%s" title="%s" rel="portfolio-%s"><img src="%s" alt="%s"></a>', $full_src[0], $image_caption, $item->ID, $thumb_src[0], $image_caption);
+			$output = $output . sprintf('<a href="%s" title="%s" class="portfolio-item" rel="portfolio-%s"><img src="%s" alt="%s"></a>', $full_src[0], $image_caption, $item->ID, $thumb_src[0], $image_caption);
 		}
 
 		foreach($ids as $id) {
@@ -181,8 +178,10 @@ function portfolinator_the_content($content) {
 		$output = $output . $html['_wrap'] . $paginator;
         if ($options['gallery_position'] == 'before') {
             return $output . $content;
-        } else {
+        } else if ($options['gallery_position'] == 'after') {
             return $content . $output;
+        } else {
+            return $output;
         }
     } else {
         return $content;

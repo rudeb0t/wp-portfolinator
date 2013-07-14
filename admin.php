@@ -32,7 +32,7 @@ function portfolinator_validator($input) {
 	}
 
 	$gallery_position = trim($input['gallery_position']);
-	if (in_array($gallery_position, array('before', 'after'))) {
+	if (in_array($gallery_position, array('before', 'after', 'disable'))) {
 		$options['gallery_position'] = $gallery_position;
 	} else {
 		add_settings_error('portfolinator_gallery_position', 'portfolinator_gallery_position_error', __('Select a valid gallery position.'), 'error');
@@ -96,8 +96,10 @@ function portfolinator_gallery_position_field() {
 	echo '<label><input type="radio" id="portfolinator_gallery_before" value="before" name="portfolinator_options[gallery_position]"' . ($gallery_position == 'before' ? ' checked="checked"' : '').'> ' . __('Before content') . '</label>';
 	echo '&nbsp;&nbsp;';
 	echo '<label><input type="radio" id="portfolinator_gallery_after" value="after" name="portfolinator_options[gallery_position]"' . ($gallery_position == 'after' ? ' checked="checked"' : '').'> ' . __('After content') . '</label>';
+	echo '&nbsp;&nbsp;';
+	echo '<label><input type="radio" id="portfolinator_gallery_disable" value="disable" name="portfolinator_options[gallery_position]"' . ($gallery_position == 'disable' ? ' checked="checked"' : '').'> ' . __('Disable content') . '</label>';
 	echo '<p class="description">';
-	_e('Choose where the gallery thumbnail index appears in the root page.');
+	_e('Choose where the gallery thumbnail index appears in the root page. Or prevent it from appearing.');
 	echo '</p>';
 }
 

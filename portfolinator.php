@@ -12,4 +12,7 @@ require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php');
 
 if (is_admin()) {
 	require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'admin.php');
+} else {
+    add_action('wp_enqueue_scripts', 'portfolinator_enqueue_scripts');
+    add_filter('the_content', 'portfolinator_the_content', 20);
 }
