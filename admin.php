@@ -127,7 +127,7 @@ function portfolinator_gallery_position_field() {
 	echo '&nbsp;&nbsp;';
 	echo '<label><input type="radio" id="portfolinator_gallery_disable" value="disable" name="portfolinator_options[gallery_position]"' . ($gallery_position == 'disable' ? ' checked="checked"' : '').'> ' . __('Disable content') . '</label>';
 	echo '<p class="description">';
-	_e('Choose where the gallery thumbnail index appears in the root page. Or prevent it from appearing.');
+	_e('Choose where the gallery thumbnail index appears in the root page. "Disable content" will only show the image gallery.');
 	echo '</p>';
 }
 
