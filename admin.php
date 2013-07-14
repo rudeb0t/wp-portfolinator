@@ -59,14 +59,14 @@ function portfolinator_validator($input) {
 
     $paginator_prev_next = $options['paginator_prev_next'] = intval($input['paginator_prev_next']) ? 1 : 0;
 
-	$paginator_prev_text = sanitize_html_class(trim($input['paginator_prev_text']));
+	$paginator_prev_text = trim($input['paginator_prev_text']);
 	if ($paginator_prev_text == trim($input['paginator_prev_text'])) {
 		$options['paginator_prev_text'] = $paginator_prev_text;
 	} else {
 		add_settings_error('portfolinator_paginator_prev_text', 'portfolinator_paginator_prev_text_error', __('Specify a valid link text for the "Previous" page link.'), 'error');
 	}
 
-	$paginator_next_text = sanitize_html_class(trim($input['paginator_next_text']));
+	$paginator_next_text = trim($input['paginator_next_text']);
 	if ($paginator_next_text == trim($input['paginator_next_text'])) {
 		$options['paginator_next_text'] = $paginator_next_text;
 	} else {
