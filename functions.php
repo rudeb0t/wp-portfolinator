@@ -27,8 +27,7 @@ function portfolinator_enqueue_scripts() {
 	global $post;
 
 	$options = portfolinator_options();
-
-	if ($options['root_page'] == $post->ID || $options['root_page'] == $post->post_parent) {
+	if ($post != NULL && ($options['root_page'] == $post->ID || $options['root_page'] == $post->post_parent)) {
 		$tn = get_option('thumbnail_size_w') . 'x' . get_option('thumbnail_size_h');
 		$args = array(
 			'tn' => $tn,
