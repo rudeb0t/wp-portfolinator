@@ -7,13 +7,19 @@ function portfolinator_admin_init() {
 	add_settings_section('portfolinator_main', __('Portfolio Display'), 'portfolinator_main_section', 'portfolinator');
 	add_settings_field('portfolinator_root_page', __('Root Page'), 'portfolinator_root_page_field', 'portfolinator', 'portfolinator_main');
 	add_settings_field('portfolinator_gallery_position', __('Gallery Position'), 'portfolinator_gallery_position_field', 'portfolinator', 'portfolinator_main');
-	add_settings_field('portfolinator_items_per_page', __('Items Per Page'), 'portfolinator_items_per_page_field', 'portfolinator', 'portfolinator_main');
 
 	add_settings_section('portfolinator_html', __('HTML Options'), 'portfolinator_html_section', 'portfolinator');
 	add_settings_field('portfolinator_html', __('Wrapper and Item HTML Tags'), 'portfolinator_html_field', 'portfolinator', 'portfolinator_html');
 	add_settings_field('portfolinator_wrap_class', __('Wrapper CSS Class'), 'portfolinator_wrap_class_field', 'portfolinator', 'portfolinator_html');
 	add_settings_field('portfolinator_item_class', __('Item CSS Class'), 'portfolinator_item_class_field', 'portfolinator', 'portfolinator_html');
     add_settings_field('portfolinator_use_bundled_colorbox', __('Use bundled colorbox'), 'portfolinator_colorbox_field', 'portfolinator', 'portfolinator_html');
+
+	add_settings_section('portfolinator_paginator', __('Paginator Options'), 'portfolinator_paginator_section', 'portfolinator');
+	add_settings_field('portfolinator_items_per_page', __('Items Per Page'), 'portfolinator_items_per_page_field', 'portfolinator', 'portfolinator_paginator');
+	add_settings_field('portfolinator_paginator_type', __('Paginator Type'), 'portfolinator_paginator_type_field', 'portfolinator', 'portfolinator_paginator');
+	add_settings_field('portfolinator_paginator_prev_next', __('Display "Previous" and "Next"'), 'portfolinator_paginator_prev_next_field', 'portfolinator', 'portfolinator_paginator');
+	add_settings_field('portfolinator_paginator_prev_text', __('Link text for "Previous"'), 'portfolinator_paginator_prev_text_field', 'portfolinator', 'portfolinator_paginator');
+	add_settings_field('portfolinator_paginator_next_text', __('Link text for "Next"'), 'portfolinator_paginator_next_text_field', 'portfolinator', 'portfolinator_paginator');
 }
 
 function portfolinator_admin_menu() {
@@ -44,6 +50,29 @@ function portfolinator_validator($input) {
 	}
 	$options['items_per_page'] = $items_per_page;
 
+	$paginator_type = trim($input['paginator_type']);
+	if (in_array($gallery_position, array('before', 'after', 'disable'))) {
+		$options['paginator_type'] = $paginator_type;
+	} else {
+		add_settings_error('portfolinator_paginator_type', 'portfolinator_paginator_type_error', __('Select a valid paginator type.'), 'error');
+	}
+
+    $paginator_prev_next = $options['paginator_prev_next'] = intval($input['paginator_prev_next']) ? 1 : 0;
+
+	$paginator_prev_text = sanitize_html_class(trim($input['paginator_prev_text']));
+	if ($paginator_prev_text == trim($input['paginator_prev_text'])) {
+		$options['paginator_prev_text'] = $paginator_prev_text;
+	} else {
+		add_settings_error('portfolinator_paginator_prev_text', 'portfolinator_paginator_prev_text_error', __('Specify a valid link text for the "Previous" page link.'), 'error');
+	}
+
+	$paginator_next_text = sanitize_html_class(trim($input['paginator_next_text']));
+	if ($paginator_next_text == trim($input['paginator_next_text'])) {
+		$options['paginator_next_text'] = $paginator_next_text;
+	} else {
+		add_settings_error('portfolinator_paginator_next_text', 'portfolinator_paginator_next_text_error', __('Specify a valid link text for the "Next" page link.'), 'error');
+	}
+
 	$html = intval($input['html']);
 	if (in_array($html, array(PORTFOLINATOR_HTML_UL_LI, PORTFOLINATOR_HTML_DIV_P, PORTFOLINATOR_HTML_DIV_DIV))) {
 		$options['html'] = $html;
@@ -65,8 +94,7 @@ function portfolinator_validator($input) {
 		add_settings_error('portfolinator_item_class', 'portfolinator_item_class_error', __('Select a valid CSS class for the item HTML element.'), 'error');
 	}
 
-    $use_bundled_colorbox = 
-    $options['use_bundled_colorbox'] = intval($input['use_bundled_colorbox']) ? 1 : 0;
+    $use_bundled_colorbox = $options['use_bundled_colorbox'] = intval($input['use_bundled_colorbox']) ? 1 : 0;
 
 	return $options;
 }
@@ -147,7 +175,49 @@ function portfolinator_colorbox_field() {
 	echo '&nbsp;&nbsp;';
 	echo '<label><input type="radio" id="portfolinator_no_bundled_colorbox" value="0" name="portfolinator_options[use_bundled_colorbox]"' . ($colorbox == 0 ? ' checked="checked"' : '').'> ' . __('No (theme must use colorbox)') . '</label>';
 	echo '<p class="description">';
-	_e('Choose whether or not to use the colorbox bundled with this project.');
+	_e('Choose whether or not to use the colorbox script and companion scripts bundled with this plugin. If you choose to disable this, you must include your own Javascript for displaying image slideshows.');
+	echo '</p>';
+}
+
+function portfolinator_paginator_type_field() {
+	$options = portfolinator_options();
+	$paginator_type = ($options['paginator_type'] ? $options['paginator_type'] : 'list');
+	echo '<label><input type="radio" id="portfolinator_paginator_list" value="list" name="portfolinator_options[paginator_type]"' . ($paginator_type == 'list' ? ' checked="checked"' : '').'> ' . __('Unordered List') . '</label>';
+	echo '&nbsp;&nbsp;';
+	echo '<label><input type="radio" id="portfolinator_paginator_plain" value="plain" name="portfolinator_options[paginator_type]"' . ($paginator_type == 'plain' ? ' checked="checked"' : '').'> ' . __('Plain Links') . '</label>';
+	echo '&nbsp;&nbsp;';
+	echo '<label><input type="radio" id="portfolinator_paginator_disable" value="disable" name="portfolinator_options[paginator_type]"' . ($paginator_type == 'disable' ? ' checked="checked"' : '').'> ' . __('Disable paginator') . '</label>';
+	echo '<p class="description">';
+	_e('Choose the type of paginator to display. If paginator is disabled, the pagination data will be available as an array in the global variable <code>$PORTFOLINATOR_PAGINATOR_DATA</code>.');
+	echo '</p>';
+}
+
+function portfolinator_paginator_prev_next_field() {
+	$options = portfolinator_options();
+	$paginator_prev_next = intval($options['paginator_prev_next']) ? 1 : 0;
+	echo '<label><input type="radio" id="portfolinator_paginator_prev_next" value="1" name="portfolinator_options[paginator_prev_next]"' . ($paginator_prev_next == 1 ? ' checked="checked"' : '').'> ' . __('Yes') . '</label>';
+	echo '&nbsp;&nbsp;';
+	echo '<label><input type="radio" id="portfolinator_no_paginator_prev_next" value="0" name="portfolinator_options[paginator_prev_next]"' . ($paginator_prev_next == 0 ? ' checked="checked"' : '').'> ' . __('No') . '</label>';
+	echo '<p class="description">';
+	_e('Choose whether or not to display "Previous" and "Next" links.');
+	echo '</p>';
+}
+
+function portfolinator_paginator_prev_text_field() {
+	$options = portfolinator_options();
+	$paginator_prev_text = ($options['paginator_prev_text'] ? $options['paginator_prev_text'] : __('Previous'));
+	echo '<input type="text" name="portfolinator_options[paginator_prev_text]" value="' . $paginator_prev_text . '">';
+	echo '<p class="description">';
+	_e('Text to display for the "Previous" page link in the paginator.');
+	echo '</p>';
+}
+
+function portfolinator_paginator_next_text_field() {
+	$options = portfolinator_options();
+	$paginator_next_text = ($options['paginator_next_text'] ? $options['paginator_next_text'] : __('Next'));
+	echo '<input type="text" name="portfolinator_options[paginator_next_text]" value="' . $paginator_next_text . '">';
+	echo '<p class="description">';
+	_e('Text to display for the "Next" page link in the paginator.');
 	echo '</p>';
 }
 
@@ -177,5 +247,11 @@ function portfolinator_main_section() {
 function portfolinator_html_section() {
 	echo '<p>';
 	_e('These settings control the HTML that will be used in generating the gallery index. Make sure that you use valid and matching tags for the opening and closing HTML. If you leave these blank the defaults will be used.');
+	echo '</p>';
+}
+
+function portfolinator_paginator_section() {
+	echo '<p>';
+	_e('These options control paginator display for the portfolio root page.');
 	echo '</p>';
 }

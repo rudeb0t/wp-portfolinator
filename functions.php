@@ -12,6 +12,9 @@ define('PORTFOLINATOR_ITEM_CLASS', 'portfolinator_item');
 
 define('PORTFOLINATOR_USE_BUNDLED_COLORBOX', 1);
 
+$GLOBALS['PORTFOLINATOR_PAGINATOR_DATA'] = null;
+
+
 function portfolinator_get_image_caption($image) {
 	if ($image->post_excerpt) {
 		return apply_filters('the_title', $image->post_excerpt);
@@ -55,7 +58,11 @@ function portfolinator_options($use_default=false) {
 		'html' => PORTFOLINATOR_HTML_UL_LI,
 		'wrap_class' => PORTFOLINATOR_WRAP_CLASS,
 		'item_class' => PORTFOLINATOR_ITEM_CLASS,
-        'use_bundled_colorbox' => PORTFOLINATOR_USE_BUNDLED_COLORBOX
+        'use_bundled_colorbox' => PORTFOLINATOR_USE_BUNDLED_COLORBOX,
+        'paginator_type' => 'list',
+        'paginator_prev_next' => 0,
+        'paginator_prev_text' => __('Previous'),
+        'paginator_next_text' => __('Next')
 	);
 	if ($use_default) {
 		return $default_options;
@@ -149,15 +156,21 @@ function portfolinator_the_content($content) {
 		));
 		if ($items->max_num_pages > 1) {
 			$format = get_option('permalink_structure') ? 'page/%#%/' : '&page=%#%';
-			$paginator = paginate_links(array(
-				'base' => get_pagenum_link(1) . '%_%',
-				'format' => $format,
-				'current' => $current_page,
-				'total' => $items->max_num_pages,
-				'mid_size' => 4,
-				'type' => 'list',
-				'prev_next' => false
-			));
+            $paginator = paginate_links(array(
+                'base' => get_pagenum_link(1) . '%_%',
+                'format' => $format,
+                'current' => $current_page,
+                'total' => $items->max_num_pages,
+                'mid_size' => 4,
+                'type' => ($options['paginator_type'] == 'disabled' ? 'array' : $options['paginator_type']),
+                'prev_next' => $options['paginator_prev_next'],
+                'prev_text' => $options['paginator_prev_text'],
+                'next_text' => $options['paginator_next_text']
+            ));
+            if ($options['paginator_type'] == 'disable') {
+                $GLOBALS['PORTFOLINATOR_PAGINATOR_DATA'] = $paginator;
+                $paginator = '';
+            }
 		}
 
 		$output = $html['wrap_'];
