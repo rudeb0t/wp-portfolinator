@@ -162,7 +162,7 @@ function portfolinator_the_content($content) {
                 'current' => $current_page,
                 'total' => $items->max_num_pages,
                 'mid_size' => 4,
-                'type' => ($options['paginator_type'] == 'disabled' ? 'array' : $options['paginator_type']),
+                'type' => ($options['paginator_type'] == 'disable' ? 'array' : $options['paginator_type']),
                 'prev_next' => $options['paginator_prev_next'],
                 'prev_text' => $options['paginator_prev_text'],
                 'next_text' => $options['paginator_next_text']
@@ -199,4 +199,35 @@ function portfolinator_the_content($content) {
     } else {
         return $content;
     }
+}
+
+function portfolinator_get_previous_items_link() {
+    global $PORTFOLINATOR_PAGINATOR_DATA;
+
+    if (is_array($PORTFOLINATOR_PAGINATOR_DATA) and count($PORTFOLINATOR_PAGINATOR_DATA)) {
+        if (stripos($PORTFOLINATOR_PAGINATOR_DATA[0], 'class="prev ') !== false) {
+            return $PORTFOLINATOR_PAGINATOR_DATA[0];
+        }
+    }
+    return '';
+}
+
+function portfolinator_previous_items_link() {
+    echo portfolinator_get_previous_items_link();
+}
+
+function portfolinator_get_next_items_link() {
+    global $PORTFOLINATOR_PAGINATOR_DATA;
+
+    if (is_array($PORTFOLINATOR_PAGINATOR_DATA) and count($PORTFOLINATOR_PAGINATOR_DATA)) {
+        $last = count($PORTFOLINATOR_PAGINATOR_DATA) - 1;
+        if (stripos($PORTFOLINATOR_PAGINATOR_DATA[$last], 'class="next ') !== false) {
+            return $PORTFOLINATOR_PAGINATOR_DATA[$last];
+        }
+    }
+    return '';
+}
+
+function portfolinator_next_items_link() {
+    echo portfolinator_get_next_items_link();
 }
